@@ -120,7 +120,7 @@ def fetch_partition(directory, filename):
     if evals_root is None:
         raise FileNotFoundError(f"{directory / filename} is missing and is not under an evals/ tree")
     relative = directory.relative_to(evals_root) / filename
-    cached = hf_hub_download(SUITES_DATASET, str(relative), repo_type="dataset", revision=SUITES_REVISION)
+    cached = hf_hub_download(SUITES_DATASET, relative.as_posix(), repo_type="dataset", revision=SUITES_REVISION)
     shutil.copyfile(cached, directory / filename)
     print(f"fetched {relative} from {SUITES_DATASET}@{SUITES_REVISION[:10]}", flush=True)
 

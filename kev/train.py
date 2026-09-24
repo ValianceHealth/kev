@@ -7,7 +7,11 @@ fly from the public sources, or your own JSONL), with the pointer head trained f
 
 Batch size is small (variable-length records with custom masks) and gradients are accumulated over --accum micro-batches.
 """
-import argparse, contextlib, json, math, random, resource, sys, time
+import argparse, contextlib, json, math, random, sys, time
+try:
+    import resource  # Unix only; Windows has no such module (scratch shim, not upstream)
+except ImportError:  # pragma: no cover
+    resource = None
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -348,7 +352,7 @@ def main():
                "requested_records": a.epochs * len(reqs), "truncated_records": 0, "rejected_records": 0,
                "optimizer_steps": step, "forward_tokens": tokens_seen,
                "peak_device_bytes": peak_mem, "device": dev, "dtype": a.dtype, "batch": a.batch,
-               "peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * (1 if sys.platform == "darwin" else 1024)})
+               "peak_rss_bytes": (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * (1 if sys.platform == "darwin" else 1024)) if resource else 0})
     print("saved", a.out, flush=True)
 
 
